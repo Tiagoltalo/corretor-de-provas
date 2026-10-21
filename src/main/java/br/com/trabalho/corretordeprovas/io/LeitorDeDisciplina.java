@@ -35,18 +35,20 @@ public class LeitorDeDisciplina {
             throw new EntradaInvalidaException("disciplina", "impossível transformar em minúscula", texto);
         }
 
-        for (char resposta : gabarito.toCharArray()) {
-            if (resposta == 'v') {
-                continue;
-            } else if (resposta == 'f') {
-                continue;
-            } else {
-                throw new EntradaInvalidaException("gabarito", "resposta diferente do esperado", gabarito);
-            }
-        }
-
         if (gabarito.length() > 10) {
             throw new EntradaInvalidaException("gabarito", "resposta maior que o esperado", gabarito);
+        } else if (gabarito.length() < 10) {
+        	throw new EntradaInvalidaException("gabarito", "resposta menor que o esperado", gabarito);
+        } else {
+        	for (char resposta : gabarito.toCharArray()) {
+        		if (resposta == 'v') {
+        			continue;
+        		} else if (resposta == 'f') {
+        			continue;
+        		} else {
+        			throw new EntradaInvalidaException("gabarito", "resposta diferente do esperado", gabarito);
+        		}
+        	}
         }
 
         return gabarito;
