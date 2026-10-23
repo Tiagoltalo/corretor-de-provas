@@ -9,7 +9,6 @@ import br.com.trabalho.corretordeprovas.utils.Utils;
 public class Main {
     public static void main(String[] args) {
 		Utils utils = new Utils();
-		CriadorDeArquivo criador = new CriadorDeArquivo(utils, new File("dados/respostas"));
 
 		boolean executando = true;
 		while(executando) {
@@ -18,6 +17,7 @@ public class Main {
 			try {
 				switch (opcao) {
 				case "1":
+					CriadorDeArquivo criador = new CriadorDeArquivo(utils, new File("dados/respostas"));
 					criador.criarArquivoDisciplina();
 					break;
 				case "0":
