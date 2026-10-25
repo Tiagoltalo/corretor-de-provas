@@ -13,10 +13,10 @@ public class LeitorDeDisciplina {
         System.out.print("Informe o nome da disciplina: ");
         texto = utils.lerTexto();
 
-        try {
-            disciplina = texto.toLowerCase();
-        } catch (Exception e) {
-            throw new EntradaInvalidaException("disciplina", "impossível transformar em minúscula", texto);
+        if (texto.length() == 0) {
+        	throw new EntradaInvalidaException("disciplina", "nome vazio", texto);
+        } else {
+        	disciplina = texto.toLowerCase();
         }
 
         return disciplina;
@@ -26,7 +26,7 @@ public class LeitorDeDisciplina {
         String texto;
         String gabarito;
 
-        System.out.print("Informe o gabarito da disciplina (ex: vfvfffv): ");
+        System.out.print("Informe o gabarito da disciplina (ex: VFFVFVFFFV): ");
         texto = utils.lerTexto();
 
         try {
