@@ -7,7 +7,6 @@ public class Utils {
 
     public String lerTexto () {
         String texto = scanner.nextLine().trim();
-
         return texto;
     }
 
