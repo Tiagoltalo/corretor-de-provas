@@ -5,6 +5,7 @@ import java.util.List;
 public class Boletim {
     private final String nomeAluno;
     private final List<Nota> notas;
+    
     public Boletim(String nomeAluno, List<Nota> notas) {
 		this.nomeAluno = nomeAluno;
 		this.notas = notas;
