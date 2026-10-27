@@ -1,76 +1,83 @@
 package br.com.trabalho.corretordeprovas;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+
 import br.com.trabalho.corretordeprovas.exception.EntradaInvalidaException;
 import br.com.trabalho.corretordeprovas.io.CriadorDeArquivo;
-import br.com.trabalho.corretordeprovas.model.Respostas;
-import br.com.trabalho.corretordeprovas.service.Corretor;
+import br.com.trabalho.corretordeprovas.io.GeradorDeResultado;
+import br.com.trabalho.corretordeprovas.service.GeradorBoletim;
 import br.com.trabalho.corretordeprovas.utils.Utils;
 
 public class Main {
+    private static final File DIRETORIO_RESPOSTAS = new File("dados/respostas");
+    private static final File DIRETORIO_RESULTADOS = new File("dados/resultados");
+    private static final File DIRETORIO_BOLETINS = new File("dados/boletins");
+
     public static void main(String[] args) {
-		Utils utils = new Utils();
-		CriadorDeArquivo criador = new CriadorDeArquivo(utils, new File("dados/respostas"));
+        Utils utils = new Utils();
+        CriadorDeArquivo criador = new CriadorDeArquivo(utils, DIRETORIO_RESPOSTAS);
+        GeradorDeResultado geradorDeResultado =
+                new GeradorDeResultado(utils, DIRETORIO_RESPOSTAS, DIRETORIO_RESULTADOS);
+        GeradorBoletim geradorBoletim = new GeradorBoletim(DIRETORIO_RESULTADOS, DIRETORIO_BOLETINS);
 
-		exibirMenu(utils);
-		boolean executando = true;
-		while(executando) {
-			String opcao = utils.lerTexto();
-			try {
-				switch (opcao) {
-				case "1":
-					criador.criarArquivoDisciplina();
-					break;
-				case "2":
-					String caminho = utils.lerTexto();
-					File arquivoGabarito = new File(caminho);
-					
-					if (!arquivoGabarito.isFile()) {
-					    throw new FileNotFoundException("arquivo não encontrado: " + caminho);
-					}
-					
-					List<String> todasAsLinhas = Files.readAllLines(arquivoGabarito.toPath());
-					List<String> linhas = new ArrayList<>();
+        boolean executando = true;
 
-					for (String linha : todasAsLinhas) {
-					    if (!linha.isBlank()) {
-					        linhas.add(linha);
-					    }
-					}
-					
-					if (linhas.size() != 1) {
-					    throw new EntradaInvalidaException("gabarito",
-					            "o arquivo deve ter exatamente uma linha com as respostas", caminho);
-					}
+        try {
+            while (executando) {
+                exibirMenu(utils);
+                String opcao = utils.lerTexto();
 
-					Respostas gabarito = Respostas.validarECriar(linhas.get(0), "gabarito oficial");
-					Corretor corretor = new Corretor(gabarito);
-					break;
-				case "0":
-					executando = false;
-					break;
-				default:
-					utils.imprimirMensagem("Erro: Opção inválida! Digite novamente: ");
-					break;
-				}				
-			} catch (EntradaInvalidaException | IOException e) {
-				utils.imprimirMensagem("Erro: " + e.getMessage() + "\n");
-			}
-		}
-	}
+                try {
+                    switch (opcao) {
+                        case "1":
+                        	criador.criarArquivoDisciplina();
+                        	break;
+                        case "2":
+                        	geradorDeResultado.gerarResultado();
+                        	break;
+                        case "3":
+                        	gerarBoletins(utils, geradorBoletim);
+                        	break;
+                        case "0":
+                        	executando = false;
+                        	break;
+                        default:
+                        	utils.imprimirMensagem("Erro: opção inválida!\n");
+                        	break;
+                    }
+                } catch (EntradaInvalidaException e) {
+                    utils.imprimirMensagem(e.getMessage() + "\n");
+                } catch (IOException e) {
+                    utils.imprimirMensagem("Erro de arquivo: " + e.getMessage() + "\n");
+                }
+            }
+        } catch (NoSuchElementException e) {
+            // a entrada padrão foi encerrada (Ctrl+D / Ctrl+Z)
+            utils.imprimirMensagem("\nEntrada encerrada.\n");
+        }
+    }
 
-	private static void exibirMenu(Utils utils) {
-		utils.imprimirMensagem("""
-				==================== CORRETOR DE PROVAS ====================
-				1 - Criar arquivo de respostas de uma disciplina
-				2 - Gerar resultado de uma disciplina
-                3 - Gerar boletins
-                0 - Sair
-				Digite a opção desejada:""");	
-	}
+    private static void gerarBoletins(Utils utils, GeradorBoletim gerador)
+            throws EntradaInvalidaException, IOException {
+        List<File> boletins = gerador.gerarBoletins();
+
+        utils.imprimirMensagem("\n" + boletins.size() + " boletim(ns) gerado(s) em "
+                + DIRETORIO_BOLETINS.getPath() + ":\n");
+        for (File boletim : boletins) {
+            utils.imprimirMensagem("  " + boletim.getName() + "\n");
+        }
+        utils.imprimirMensagem("\n");
+    }
+
+    private static void exibirMenu(Utils utils) {
+        utils.imprimirMensagem("==================== CORRETOR DE PROVAS ====================\n"
+                + "1 - Criar arquivo de respostas de uma disciplina\n"
+                + "2 - Gerar resultado de uma disciplina\n"
+                + "3 - Gerar boletins\n"
+                + "0 - Sair\n"
+                + "Digite a opção desejada: ");
+    }
 }
