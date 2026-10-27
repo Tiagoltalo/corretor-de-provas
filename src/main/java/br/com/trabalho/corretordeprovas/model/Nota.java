@@ -1,7 +1,3 @@
 package br.com.trabalho.corretordeprovas.model;
 
-
-
-public class Nota {
-    
-}
+public record Nota(String disciplina, int valor) {}
